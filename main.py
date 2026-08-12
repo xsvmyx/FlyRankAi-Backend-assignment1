@@ -29,3 +29,12 @@ def get_task(task_id: int):
         if task["id"] == task_id:
             return task
     return HTTPException(status_code=404, detail="Task not found")
+
+
+
+@app.post("/tasks")
+def create_task(task: dict):
+    task["id"] = len(tasks) + 1
+    task["done"] = False
+    tasks.append(task)
+    return { "message": "Task created successfully" }
