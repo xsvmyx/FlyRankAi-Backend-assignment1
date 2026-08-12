@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException , Response
 from tasks import tasks
+from typing import Optional
 
 app = FastAPI()
 
@@ -17,10 +18,21 @@ def health_check():
 
 
 
-
 @app.get("/tasks")
-def get_tasks():
-    return tasks
+def get_tasks(done: Optional[bool] = None):  
+    if done is None:
+        return tasks
+    
+    return [task for task in tasks if task["done"] == done]
+
+
+
+@app.get("/tasks/search")
+def search_tasks(query: str):
+    return [task for task in tasks if query.lower() in task["title"].lower()]
+
+
+
 
 
 @app.get("/tasks/{task_id}")
@@ -65,3 +77,11 @@ def delete_task(task_id: int):
             return Response(status_code=204)
     return HTTPException(status_code=404, detail="Task not found")
     
+
+
+
+@app.get("/stats")
+def get_stats():
+    return { "total": len(tasks), "done": len([task for task in tasks if task["done"]]),"open": len([task for task in tasks if not task["done"]]) }
+
+
